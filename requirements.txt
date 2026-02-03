@@ -1,0 +1,6 @@
+sqlalchemy
+zeep
+requests
+xmltodict
+pymysql
+

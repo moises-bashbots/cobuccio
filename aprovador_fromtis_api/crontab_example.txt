@@ -1,0 +1,72 @@
+# Crontab configuration for Aprovador Fromtis API
+# 
+# This file contains example crontab entries to run the aprovador scripts
+# every minute. The scripts are designed to ensure only one instance runs
+# at a time using PID files.
+#
+# To install this crontab:
+# 1. Edit your crontab: crontab -e
+# 2. Add the lines below (adjust paths if needed)
+# 3. Save and exit
+#
+# To view current crontab: crontab -l
+# To remove crontab: crontab -r
+#
+# ============================================================================
+# CRONTAB ENTRIES
+# ============================================================================
+
+# Run aprovador_gestor every minute
+* * * * * /home/robot/Deploy/aprovador_fromtis_api/run_aprovador_gestor.sh >> /home/robot/Deploy/aprovador_fromtis_api/cron_gestor.log 2>&1
+
+# Run aprovador_consultoria every minute
+* * * * * /home/robot/Deploy/aprovador_fromtis_api/run_aprovador_consultoria.sh >> /home/robot/Deploy/aprovador_fromtis_api/cron_consultoria.log 2>&1
+
+# ============================================================================
+# EXPLANATION
+# ============================================================================
+#
+# Format: * * * * * command
+#         │ │ │ │ │
+#         │ │ │ │ └─── Day of week (0-7, Sunday=0 or 7)
+#         │ │ │ └───── Month (1-12)
+#         │ │ └─────── Day of month (1-31)
+#         │ └───────── Hour (0-23)
+#         └─────────── Minute (0-59)
+#
+# * * * * * = Every minute
+#
+# The scripts will:
+# - Check if the binary is already running using PID file
+# - If running: exit immediately (no duplicate instances)
+# - If not running: start the binary in background with nohup
+# - Log output to .log files
+# - Save PID to .pid files
+#
+# ============================================================================
+# MONITORING
+# ============================================================================
+#
+# Check if processes are running:
+#   ps aux | grep aprovador
+#
+# View logs:
+#   tail -f /home/robot/Deploy/aprovador_fromtis_api/aprovador_gestor.log
+#   tail -f /home/robot/Deploy/aprovador_fromtis_api/aprovador_consultoria.log
+#   tail -f /home/robot/Deploy/aprovador_fromtis_api/cron_gestor.log
+#   tail -f /home/robot/Deploy/aprovador_fromtis_api/cron_consultoria.log
+#
+# Check PID files:
+#   cat /home/robot/Deploy/aprovador_fromtis_api/aprovador_gestor.pid
+#   cat /home/robot/Deploy/aprovador_fromtis_api/aprovador_consultoria.pid
+#
+# Stop processes manually:
+#   kill $(cat /home/robot/Deploy/aprovador_fromtis_api/aprovador_gestor.pid)
+#   kill $(cat /home/robot/Deploy/aprovador_fromtis_api/aprovador_consultoria.pid)
+#
+# Or force kill:
+#   pkill -f aprovador_gestor
+#   pkill -f aprovador_consultoria
+#
+# ============================================================================
+

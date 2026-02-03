@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Define the binary to be executed
+BINARY="$SCRIPT_DIR/aprovador_gestor"
+BINARY_NAME="aprovador_gestor"
+PIDFILE="$SCRIPT_DIR/${BINARY_NAME}.pid"
+LOGFILE="$SCRIPT_DIR/${BINARY_NAME}.log"
+
+# Function to check if process is running
+is_running() {
+    if [ -f "$PIDFILE" ]; then
+        PID=$(cat "$PIDFILE")
+        if ps -p "$PID" > /dev/null 2>&1; then
+            # Check if it's actually our binary
+            if ps -p "$PID" -o cmd= | grep -q "$BINARY_NAME"; then
+                return 0
+            fi
+        fi
+        # PID file exists but process is not running, remove stale PID file
+        rm -f "$PIDFILE"
+    fi
+    return 1
+}
+
+# Check if the binary is already running
+if is_running; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $BINARY_NAME is already running (PID: $(cat $PIDFILE))"
+    exit 0
+fi
+
+# Start the binary in background
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting $BINARY_NAME..."
+cd "$SCRIPT_DIR"
+nohup "$BINARY" >> "$LOGFILE" 2>&1 &
+PID=$!
+
+# Save the PID
+echo $PID > "$PIDFILE"
+echo "$(date '+%Y-%m-%d %H:%M:%S') - $BINARY_NAME started with PID: $PID"

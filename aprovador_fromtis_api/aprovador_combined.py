@@ -131,7 +131,7 @@ def retrieve_list_operacoes_aprovar(dict_credencial):
         return []
     
     dict_response = xmltodict.parse(response.text)
-    
+
     # Check for error response
     if 'erro' in dict_response:
         mensagem = dict_response['erro'].get('mensagem', '')
@@ -140,8 +140,9 @@ def retrieve_list_operacoes_aprovar(dict_credencial):
             print("ℹ️  No operations found for today")
             return []
         return []
-    
-    list_operacoes = dict_response.get('operacoes', {}).get('operacao', [])
+
+    # Correct XML structure: operacaoRecebivelDtoes -> operacao
+    list_operacoes = dict_response.get('operacaoRecebivelDtoes', {}).get('operacao', [])
 
     if not isinstance(list_operacoes, list):
         list_operacoes = [list_operacoes]
@@ -190,7 +191,7 @@ def approve_operation(dict_operacao, dict_credencial, approval_type):
             print(f"\n❌ Error creating SOAP client: {type(e).__name__}")
             print(f"Error details: {str(e)}")
             if '429' in str(e) and attempt < max_retries - 1:
-                wait_time = 30 * (attempt + 1)  # Exponential backoff: 30s, 60s, 90s
+                wait_time = 5  # Wait 5 seconds on rate limit
                 print(f"⏳ Rate limit hit. Waiting {wait_time} seconds before retry...")
                 time.sleep(wait_time)
             else:
@@ -235,8 +236,8 @@ def approve_operation(dict_operacao, dict_credencial, approval_type):
         print(f"Error details: {str(e)}")
         print('=' * 80)
         if '429' in str(e):
-            print("⏳ Rate limit hit. Waiting 30 seconds before retry...")
-            time.sleep(30)
+            print("⏳ Rate limit hit. Waiting 5 seconds before retry...")
+            time.sleep(5)
             try:
                 print("Retrying SOAP call...")
                 response = soap_method(request_data)
@@ -305,8 +306,8 @@ def consulta_operacao():
             else:
                 approval_stats['skipped'] += 1
 
-            print("⏳ Waiting 10 seconds before next approval to avoid rate limiting...")
-            time.sleep(10)
+            print("⏳ Waiting 1 second before next approval...")
+            time.sleep(1)
         else:
             approval_stats['skipped'] += 1
 

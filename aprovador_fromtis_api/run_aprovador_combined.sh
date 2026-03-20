@@ -3,6 +3,14 @@
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Set custom temp directory for PyInstaller to avoid /tmp cleanup issues
+export TMPDIR="$SCRIPT_DIR/tmp"
+mkdir -p "$TMPDIR"
+
+# Clean up old PyInstaller extraction directories (older than 1 day)
+# This removes orphaned _MEI* directories from previous runs
+find "$TMPDIR" -maxdepth 1 -type d -name "_MEI*" -mtime +1 -exec rm -rf {} \; 2>/dev/null
+
 # Define the binary to be executed
 BINARY="$SCRIPT_DIR/aprovador_combined"
 BINARY_NAME="aprovador_combined"
